@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog
-
+from PIL import Image,ImageTk
+from tkinter import ttk
+import random
+import Target
 
 class Root(tk.Tk):
     """Creates root window."""
@@ -15,20 +18,23 @@ class Root(tk.Tk):
 
 class MenuBar(tk.Frame):
 
+
     def OpenImage(self):
-        self.root.filename = filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("png files", "*.png"), ("all files", "*.*")))
-        Canvas.Image(self.root, filename=self.root.filename)
+
+        root.filename = filedialog.askopenfilename(initialdir="/", title="Select file",filetypes=(("png files", "*.png"), ("all files", "*.*")))
+        icanvas.show_image(root.filename)
 
     def CreateRectangle(self):
-        Canvas.CreateRectangle(self.root)
-        pass
+        icanvas.my_create_rectangle(10,10)
+
+
+
     def donothing(self):
         pass
 
     def __init__(self, root, *args, **kwargs):
-        tk.Frame.__init__(self, root, *args, **kwargs)
         self.root = root
-
+        self.frame = tk.Frame(self.root)
         menubar = tk.Menu(self.root)
         filemenu = tk.Menu(menubar, tearoff=0)
         filemenu.add_command(label="Image", command=self.OpenImage)
@@ -59,36 +65,163 @@ class MenuBar(tk.Frame):
         menubar.add_cascade(label="Help", menu=helpmenu)
 
         root.config(menu=menubar)
+class AutoScrollbar(ttk.Scrollbar):
+    ''' A scrollbar that hides itself if it's not needed.
+        Works only if you use the grid geometry manager '''
+    def set(self, lo, hi):
+        if float(lo) <= 0.0 and float(hi) >= 1.0:
+            self.grid_remove()
+        else:
+            self.grid()
+        ttk.Scrollbar.set(self, lo, hi)
 
+    def pack(self, **kw):
+        raise tk.TclError('Cannot use pack with this widget')
 
-class Canvas(tk.Canvas):
+    def place(self, **kw):
+        raise tk.TclError('Cannot use place with this widget')
+
+class Canvas(tk.Frame):
     """Creates drawing canvas."""
 
     def __init__(self, root, *args, **kwargs):
-        tk.Canvas.__init__(self, root, *args, **kwargs)
 
-        self.pack(fill="both", expand=True)
+        self.root = root
+        self.frame = tk.Frame(self.root)
+        vbar = AutoScrollbar(self.root, orient='vertical')
+        hbar = AutoScrollbar(self.root, orient='horizontal')
+        vbar.grid(row=0, column=1, sticky='ns')
+        hbar.grid(row=1, column=0, sticky='we')
+
+        # Create canvas and put image on it
+        self.canvas = tk.Canvas(self.root, highlightthickness=0,
+                                xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+
+        self._drag_data = {"x": 0, "y": 0, "item": None}
+
+        self.canvas.tag_bind("token", "<ButtonPress-1>", self.drag_start)
+        self.canvas.tag_bind("token", "<ButtonRelease-1>", self.drag_stop)
+        self.canvas.tag_bind("token", "<B1-Motion>", self.drag)
+
+        self.canvas.grid(row=0, column=0, sticky='nswe')
+        vbar.configure(command=self.canvas.yview)  # bind scrollbars to the canvas
+        hbar.configure(command=self.canvas.xview)
+        # Make the canvas expandable
+        self.root.rowconfigure(0, weight=1)
+        self.root.columnconfigure(0, weight=1)
+        # Bind events to the Canvas
+        #self.canvas.bind('<ButtonPress-1>', self.move_from)
+        #self.canvas.bind('<B1-Motion>', self.move_to)
+        self.canvas.bind('<MouseWheel>', self.wheel)  # with Windows and MacOS, but not Linux
+        self.canvas.bind('<Button-5>', self.wheel)  # only with Linux, wheel scroll down
+        self.canvas.bind('<Button-4>', self.wheel)  # only with Linux, wheel scroll up
+        # Show image and plot some random test rectangles on the canvas
+        self.imscale = 1.0
+        self.imageid = None
+        self.delta = 0.75
+
+        self.text = self.canvas.create_text(0, 0, anchor='nw', text='')
+        self.show_image(r'C:\Users\Majkster\PycharmProjects\KinterTESTING\lena.png')
+        width, height = self.image.size
+        minsize, maxsize = 5, 20
 
 
-    def Image(self, filename):
-        global img
-        img = tk.PhotoImage(file=filename)
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
-        canvas.create_image(0, 0, anchor=tk.NW, image=img)
 
-    def CreateRectangle(self,x=10,y=10):
-        canvas.create_rectangle(10,15,15,10, fill = 'red')
+
+    def show_image(self,path=None):
+
+        if path==None:
+            path = root.filename
+        else:
+            root.filename = path
+
+        #self.canvas.delete(self.imageid)
+        self.imageid = None
+        #self.canvas.imagetk = None  # delete previous image from the canvas
+
+
+        self.image = Image.open(path)
+
+        width, height = self.image.size
+        new_size = int(self.imscale * width), int(self.imscale * height)
+        imagetk = ImageTk.PhotoImage(self.image.resize(new_size))
+        # Use self.text object to set proper coordinates
+        self.imageid = self.canvas.create_image(self.canvas.coords(self.text),
+                                                anchor='nw', image=imagetk)
+        self.canvas.lower(self.imageid)  # set it into background
+        self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
+
+
+    def move_from(self, event):
+        ''' Remember previous coordinates for scrolling with the mouse '''
+        self.canvas.scan_mark(event.x, event.y)
+
+    def move_to(self, event):
+        ''' Drag (move) canvas to the new position '''
+        self.canvas.scan_dragto(event.x, event.y, gain=1)
+
+    def wheel(self, event):
+        ''' Zoom with mouse wheel '''
+        scale = 1.0
+        # Respond to Linux (event.num) or Windows (event.delta) wheel event
+        if event.num == 5 or event.delta == -120:
+            scale *= self.delta
+            self.imscale *= self.delta
+        if event.num == 4 or event.delta == 120:
+            scale /= self.delta
+            self.imscale /= self.delta
+        # Rescale all canvas objects
+        x = self.canvas.canvasx(event.x)
+        y = self.canvas.canvasy(event.y)
+        self.canvas.scale('all', x, y, scale, scale)
+        self.show_image()
+        self.canvas.configure(scrollregion=self.canvas.bbox('all'))
+
+    def drag_start(self, event):
+        """Begining drag of an object"""
+        # record the item and its location
+        self._drag_data["item"] = self.canvas.find_closest(event.x, event.y)[0]
+        self._drag_data["x"] = event.x
+        self._drag_data["y"] = event.y
+
+    def drag_stop(self, event):
+        """End drag of an object"""
+        # reset the drag information
+        self._drag_data["item"] = None
+        self._drag_data["x"] = 0
+        self._drag_data["y"] = 0
+
+    def drag(self, event):
+        """Handle dragging of an object"""
+        # compute how much the mouse has moved
+        delta_x = event.x - self._drag_data["x"]
+        delta_y = event.y - self._drag_data["y"]
+        # move the object the appropriate amount
+        self.canvas.move(self._drag_data["item"], delta_x, delta_y)
+        # record the new position
+        self._drag_data["x"] = event.x
+        self._drag_data["y"] = event.y
+
+    def my_create_rectangle(self,x,y):
+        self.canvas.create_rectangle(x, y, x+5, y+5, outline='black', fill='red',activefill='black', tags='token')
+
+
 
 
 root = Root()
-app = MenuBar(root)
-canvas = Canvas(root)
+icanvas = Canvas(root)
+imenu = MenuBar(root)
+
 root.mainloop()
 
+
+
 #TO DO
-#   Skalowanie zdjęcia razem z oknem
-#   Przybliżanie i oddalanie zdjęcia
-#   Przesuwanie kwadratów
+
+
+#   Przesuwanie kwadratów  (bind manager w menubar -> unbind przesuwanie, bind przesuwanie kwadrat
 #   Linijka żeby dobrze je odjebać
 #   pomyśleć jak zrobić skalę ( może być związana z linijką w sumie)
 #
