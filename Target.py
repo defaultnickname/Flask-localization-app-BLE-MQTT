@@ -2,6 +2,8 @@ from datetime import datetime
 import math
 import scipy.optimize
 from scipy.spatial import distance
+from __future__ import print_function
+
 
 
 def great_circle_distance(ax, ay, bx, by, radius):
@@ -36,6 +38,7 @@ class Beacon():
             if v.id == id:
                 return v
 
+    
 class Tar():
     NoTarget = 0
     TargetList = []
