@@ -26,6 +26,21 @@ class MenuBar(tk.Frame):
     def CreateRectangle(self):
         icanvas.my_create_rectangle(10,10)
 
+    def go(self,*args,**kwargs):
+        icanvas.canvas.delete("target")
+        icanvas.canvas.delete('circ')
+
+        TheTarget.distanceTab = [300, 300,300, 22, 0, 0]
+        TheTarget.Update((1, 2, 3))
+
+        Targ.distanceTab = [ 150,200,250]
+        Targ.Update((1, 2, 3))
+        #icanvas.cr_circle(Target.Beacon.FindWithID(1).x ,Target.Beacon.FindWithID(1).y,300)
+        #icanvas.cr_circle(Target.Beacon.FindWithID(2).x, Target.Beacon.FindWithID(2).y,300)
+        #icanvas.cr_circle(Target.Beacon.FindWithID(3).x, Target.Beacon.FindWithID(3).y,300)
+        icanvas.create_target(TheTarget.x,TheTarget.y)
+        icanvas.create_target(Targ.x , Targ.y)
+
     def donothing(self):
         pass
 
@@ -44,7 +59,7 @@ class MenuBar(tk.Frame):
 
 
         editmenu = tk.Menu(menubar, tearoff=0)
-        editmenu.add_command(label="Undo", command=self.donothing)
+        editmenu.add_command(label="Go", command=self.go)
         editmenu.add_separator()
         editmenu.add_command(label="Cut", command=self.donothing)
         editmenu.add_command(label="Copy", command=self.donothing)
@@ -121,7 +136,7 @@ class Canvas(tk.Frame):
 
         #self.canvas.bind('<ButtonPress-1>', self.move_from)
         #self.canvas.bind('<B1-Motion>', self.move_to)
-        self.canvas.bind('<MouseWheel>', self.wheel)  # with Windows and MacOS, but not Linux
+        self.canvas.bind('<MouseWheel>', imenu.go)  # with Windows and MacOS, but not Linux
         self.canvas.bind('<Button-5>', self.wheel)  # only with Linux, wheel scroll down
         self.canvas.bind('<Button-4>', self.wheel)  # only with Linux, wheel scroll up
 
@@ -159,7 +174,7 @@ class Canvas(tk.Frame):
 
         self.canvas.lower(self.imageid)  # set it into background
         self.canvas.imagetk = imagetk  # keep an extra reference to prevent garbage-collection
-
+        self.bumpRectangles()
 
 
 
@@ -192,19 +207,36 @@ class Canvas(tk.Frame):
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
 
 
+
     def drag_start(self, event):
 
-        self._drag_data["item"] = self.canvas.find_enclosed(event.x-30,event.y-30,event.x+30,event.y+30)
+        self._drag_data["item"] = self.canvas.find_enclosed(event.x-10 ,event.y-10,event.x+10,event.y+10)
 
         self._drag_data["x"] = event.x
         self._drag_data["y"] = event.y
 
 
+
+
+
     def drag_stop(self, event):
+
+
+        index = [x for x, y in enumerate(Canvas.relationtable) if y[0] == self._drag_data["item"][0]]
+
+
+        Rec_to_update = Canvas.relationtable[index[0]][1]
+
+        Rec_to_update.x = self._drag_data["x"]
+        Rec_to_update.y = self._drag_data["y"]
 
         self._drag_data["item"] = None
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
+
+        print(Rec_to_update,Canvas.relationtable[index[0]][0] )
+
+
 
 
 
@@ -213,7 +245,8 @@ class Canvas(tk.Frame):
         delta_x = event.x - self._drag_data["x"]
         delta_y = event.y - self._drag_data["y"]
         # move the object the appropriate amount
-        print(self._drag_data)
+        #print(self._drag_data)
+
         self.canvas.move(self._drag_data["item"], delta_x, delta_y)
         # record the new position
         self._drag_data["x"] = event.x
@@ -221,10 +254,21 @@ class Canvas(tk.Frame):
 
 
     def my_create_rectangle(self, x , y):
-        rec = self.canvas.create_rectangle(x * self.imscale, y * self.imscale, (x+5) *self.imscale, (y+5) *self.imscale, outline='',fill='red',activefill='black', tags='rec')
-        anchor = Target.Beacon(x-3,y-3)
+        rec = self.canvas.create_rectangle(x * self.imscale, y * self.imscale, (x+5) * self.imscale, (y+5) *self.imscale,fill='red',activefill='black', tags='rec')
+        x = (x * self.imscale + (x+5) * self.imscale) / 2
+        y = (y * self.imscale + (y+5) * self.imscale) / 2
+
+        anchor = Target.Beacon(x, y)
         Canvas.relationtable.append((rec,anchor))
-        print(Canvas.relationtable)
+
+    def create_target(self,x,y):
+        tar = self.canvas.create_rectangle(x * self.imscale, y * self.imscale, (x + 5) * self.imscale,
+                                           (y + 5) * self.imscale, fill='blue', activefill='black', tags='target')
+
+    def cr_circle(self, x, y, r, **kwargs):
+        self.canvas.create_oval(x - r, y - r, x + r, y + r, **kwargs,tag ='circ')
+
+
 
     def bumpRectangles(self):
         print("Bump")
@@ -232,9 +276,13 @@ class Canvas(tk.Frame):
 
 
 root = Root()
-icanvas = Canvas(root)
 imenu = MenuBar(root)
+icanvas = Canvas(root)
 
+
+
+TheTarget = Target.Tar(1)
+Targ= Target.Tar(2)
 root.mainloop()
 
 
