@@ -30,11 +30,12 @@ class MenuBar(tk.Frame):
         icanvas.canvas.delete("target")
         icanvas.canvas.delete('circ')
 
-        TheTarget.distanceTab = [300, 300,300, 22, 0, 0]
-        TheTarget.Update((1, 2, 3))
 
-        Targ.distanceTab = [ 150,200,250]
-        Targ.Update((1, 2, 3))
+
+        TheTarget.distanceTab=[250,250,250]
+        Targ.distanceTab=[150,200,250]
+        TheTarget.Update((1,2,3))
+        Targ.Update((1,2,3))
         #icanvas.cr_circle(Target.Beacon.FindWithID(1).x ,Target.Beacon.FindWithID(1).y,300)
         #icanvas.cr_circle(Target.Beacon.FindWithID(2).x, Target.Beacon.FindWithID(2).y,300)
         #icanvas.cr_circle(Target.Beacon.FindWithID(3).x, Target.Beacon.FindWithID(3).y,300)

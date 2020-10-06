@@ -3,7 +3,7 @@ import math
 import scipy.optimize
 from scipy.spatial import distance
 import numpy as np
-
+import sys
 
 def great_circle_distance(ax, ay, bx, by, radius):
     a = (ax, ay)
@@ -60,8 +60,6 @@ class Tar:
         self.tag = 'target'
         self.distanceTab = []
 
-
-
         Tar.NoTarget += 1
         Tar.TargetList.append(self)
 
@@ -78,21 +76,7 @@ class Tar:
             mse += math.pow(distance_calculated - dist, 2.0)
         return mse / 3
 
-    def Update(self):
-
-        def min3id(l):
-            tmp = []
-            for i in range(3):
-                tmp.append(l.index(min(l)))
-                del l[l.index(min(l))]
-
-            return tmp
-
-        for idx, item in enumerate(Beacon.BeaconList):
-            self.distanceTab[idx] = Beacon.BeaconList[self.targetID]
-        copy = self.distanceTab
-
-        id = min3id(copy)
+    def Update(self,id):
 
 
         A1 = Beacon.FindWithID(id[0])  # strongest signal lvl
