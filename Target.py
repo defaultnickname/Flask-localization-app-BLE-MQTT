@@ -10,7 +10,6 @@ def great_circle_distance(ax, ay, bx, by, radius):
     b = (bx, by)
     d = distance.euclidean(a, b)
 
-    print("value for arcsin", (d / (2 * radius)))
 
     while d / (2 * radius) > 1:
         d -= 0.1
@@ -32,7 +31,6 @@ class Beacon:
         else:
             self.anchorId = anchorId
 
-        self.distanceTab = []  # distance from self to each target
         self.tag = 'anchor'
 
         Beacon.NoAnchor += 1
@@ -68,22 +66,22 @@ class Tar:
         mse = 0.0
 
         for location, dist in zip(locations, distances):
-            print("anchor (x,y) , dist to target")
-            print("     ", location, dist)
-            print()
             distance_calculated = great_circle_distance(x[0], x[1], location[0], location[1], dist)
 
             mse += math.pow(distance_calculated - dist, 2.0)
         return mse / 3
 
     def Update(self,id):
+        o1 = id[0]
+        o2 = id[1]
+        o3 = id[2]
+
+        b1 = Beacon.FindWithID(o1)  # strongest signal lvl
+        b2 = Beacon.FindWithID(o2)  # 2 nd
+        b3 = Beacon.FindWithID(o3)  # 3 rd
 
 
-        A1 = Beacon.FindWithID(id[0])  # strongest signal lvl
-        A2 = Beacon.FindWithID(id[1])  # 2 nd
-        A3 = Beacon.FindWithID(id[2])  # 3 rd
-
-        locations = [(A1.x, A1.y), (A2.x, A2.y), (A3.x, A3.y)]
+        locations = [(b1.x, b1.y), (b2.x, b2.y), (b3.x, b3.y)]
 
         distances = (self.distanceTab[id[0] - 1], self.distanceTab[id[1] - 1], self.distanceTab[id[2] - 1])
 
@@ -103,7 +101,7 @@ class Tar:
                 'maxiter': 1e+7  # Maximum iterations
             })
         location = result.x
-        print(f"ID{self.targetID}","P coordinates", location)
+        #print(f"ID{self.targetID}","P coordinates", location)
         self.x = location[0]
         self.y = location[1]
 

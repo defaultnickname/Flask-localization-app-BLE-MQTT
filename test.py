@@ -3,6 +3,21 @@ from tkinter import filedialog
 from PIL import Image,ImageTk
 from tkinter import ttk
 import Target
+import MQTT_READ
+import threading
+import sys
+
+def idxfor3smallest(list):
+    lcopy = list.copy()
+    tmp = []
+
+    for _ in range(3):
+        i_i = lcopy.index(min(lcopy))
+        tmp.append(i_i)
+        lcopy[i_i] = sys.maxsize
+
+    return [x+1 for x in tmp]
+
 
 class Root(tk.Tk):
     """Creates root window."""
@@ -11,11 +26,14 @@ class Root(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
 
         self.title("the map poczatekxd")
+
+
         #self.geometry("%dx%d+0+0" % self.maxsize())
         #uncomment later
 
 
 class MenuBar(tk.Frame):
+
 
 
     def OpenImage(self):
@@ -27,20 +45,36 @@ class MenuBar(tk.Frame):
         icanvas.my_create_rectangle(10,10)
 
     def go(self,*args,**kwargs):
+        #threading.Timer(2.0, self.go).start()
         icanvas.canvas.delete("target")
         icanvas.canvas.delete('circ')
 
+        TheTarget.distanceTab = []
+        for i in range(1,8):
+            topic = "test/" + str(TheTarget.targetID) + "/" + str(i)
+            print(topic)
+            v=con.read(topic)
 
+            print(v.msg)
 
-        TheTarget.distanceTab=[250,250,250]
-        Targ.distanceTab=[150,200,250]
-        TheTarget.Update((1,2,3))
-        Targ.Update((1,2,3))
-        #icanvas.cr_circle(Target.Beacon.FindWithID(1).x ,Target.Beacon.FindWithID(1).y,300)
-        #icanvas.cr_circle(Target.Beacon.FindWithID(2).x, Target.Beacon.FindWithID(2).y,300)
-        #icanvas.cr_circle(Target.Beacon.FindWithID(3).x, Target.Beacon.FindWithID(3).y,300)
+            TheTarget.distanceTab.append(float(v.msg))
+
+            con.msg.msg = sys.maxsize
+
+        print(TheTarget.distanceTab)
+
+        #TheTarget.distanceTab=[250,250,250]
+        #Targ.distanceTab=[150,200,250]
+
+        l = idxfor3smallest(TheTarget.distanceTab)
+        print(l)
+        TheTarget.Update(l)
+        #Targ.Update((1,2,3))
+        icanvas.cr_circle(Target.Beacon.FindWithID(l[0]).x ,Target.Beacon.FindWithID(l[0]).y,TheTarget.distanceTab[l[0]-1])
+        icanvas.cr_circle(Target.Beacon.FindWithID(l[1]).x, Target.Beacon.FindWithID(l[1]).y,TheTarget.distanceTab[l[1]-1])
+        icanvas.cr_circle(Target.Beacon.FindWithID(l[2]).x, Target.Beacon.FindWithID(l[2]).y,TheTarget.distanceTab[l[2]-1])
         icanvas.create_target(TheTarget.x,TheTarget.y)
-        icanvas.create_target(Targ.x , Targ.y)
+        #icanvas.create_target(Targ.x , Targ.y)
 
     def donothing(self):
         pass
@@ -145,7 +179,7 @@ class Canvas(tk.Frame):
         self.imageid = None
         self.delta = 0.75
         self.text = self.canvas.create_text(0, 0, anchor='nw', text='')
-        self.show_image(r'C:\Users\Majkster\PycharmProjects\KinterTESTING\lena.png')
+        self.show_image(r'C:\Users\Majkster\PycharmProjects\KinterTESTING\biuro.png')
         width, height = self.image.size
 
         self.canvas.configure(scrollregion=self.canvas.bbox('all'))
@@ -235,7 +269,7 @@ class Canvas(tk.Frame):
         self._drag_data["x"] = 0
         self._drag_data["y"] = 0
 
-        print(Rec_to_update,Canvas.relationtable[index[0]][0] )
+       # print(Rec_to_update,Canvas.relationtable[index[0]][0] )
 
 
 
@@ -279,7 +313,7 @@ class Canvas(tk.Frame):
 root = Root()
 imenu = MenuBar(root)
 icanvas = Canvas(root)
-
+con = MQTT_READ.MQTT(broker_address='127.0.0.1', clientname='P1')
 
 
 TheTarget = Target.Tar(1)
