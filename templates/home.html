@@ -2,11 +2,16 @@
 
 
 {% block head %}
-
+<script src="https://code.jquery.com/jquery-3.5.0.js"></script>
 <script type="text/javascript" src="../js/canvas.js"></script>
 <script type="text/javascript" src="../js/newmqtt.js"></script>
 <script type="text/javascript" src="../js/postToBackend.js"></script>
 <script type="text/javascript" src="../js/paho-mqtt.js"></script>
+
+
+
+
+
 
 {% block title %} {{embed}} {% endblock %}
 
@@ -27,12 +32,12 @@
     <button onclick="dra.deleteRectangle()">Del</button>
     <button onclick="PostToBackend()">Go for it baby</button>
      <button onclick="connect()">MQTT</button>
+    <button onclick="dra({{ anchors|safe }})">dra</button>
 </div>
 
 <script>
-    dra();
+    dra({{ anchors|safe }});
     connect();
-
 
 </script>
 

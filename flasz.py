@@ -5,7 +5,6 @@ import main
 import Target
 import pickle
 
-
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -27,9 +26,9 @@ class users(db.Model):
     name = db.Column("fname", db.String(100))
     lastname = db.Column("lname", db.String(100))
     tarid = db.Column("userid", db.Integer)
-    target = db.Column("target",db.PickleType)
+    target = db.Column("target", db.PickleType)
 
-    def __init__(self, name, lastname, userid,tar):
+    def __init__(self, name, lastname, userid, tar):
         self.name = name
         self.lastname = lastname
         self.tarid = userid
@@ -39,7 +38,10 @@ class users(db.Model):
 @app.route('/home', methods=['GET', 'POST'])
 @app.route('/', methods=['GET', 'POST'])
 def hello_world():
-
+    _anchor = anchors.query.all()
+    message = []
+    for a in _anchor:
+        message.append({'x': a.x,'y': a.y})
 
 
     if request.method == "POST":
@@ -49,24 +51,24 @@ def hello_world():
 
         db.session.commit()
 
-        print(anchor)
+        #print(anchor)
 
         for item in anchor:
             anch = anchors(item['x'], item['y'])
             db.session.add(anch)
         db.session.commit()
-        print(anchors.query.all())
+        #print(anchors.query.all())
 
         main.letsgobaby(anchor, Target.Tar.TargetList)
 
-    return render_template('home.html')
+    print("messahe", message)
+    return render_template('home.html', anchors = message)
 
 
 @app.route('/delete', methods=['POST'])
 def delete_user():
     if request.method == "POST":
         deleteId = request.form["Delete"]
-
 
         usr = users.query.filter_by(_id=deleteId).first()
 
@@ -89,11 +91,10 @@ def add_user():
         fname = request.form['fname']
         userid = request.form['userid']
 
-
         tar = Target.Tar(int(userid))  # Tar
         print(Target.Tar.TargetList)
 
-        usr = users(fname, lname, userid,tar)  # dB entry on that user
+        usr = users(fname, lname, userid, tar)  # dB entry on that user
 
         db.session.add(usr)
         db.session.commit()
@@ -106,9 +107,6 @@ def adding_user():
     return render_template('targets.html', values=users.query.all())
 
 
-@app.route('/secret')
-def secret():
-    return "dasd"
 
 
 @app.route('/js/<path:path>')
@@ -124,4 +122,3 @@ if __name__ == '__main__':
         print(Target.Tar.TargetList)
 
     app.run(debug=True, host="localhost", port="5001")
-

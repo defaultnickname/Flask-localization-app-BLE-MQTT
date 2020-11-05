@@ -51,6 +51,7 @@ class Tar:
     NoTarget = 0
     TargetList = []
 
+
     def __init__(self, tarid):
         self.targetID = tarid
         self.x = 0

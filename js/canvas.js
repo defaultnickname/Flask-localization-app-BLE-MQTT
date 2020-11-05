@@ -12,7 +12,8 @@ document.getScroll = function () {
 }
 
 
-function dra() {
+
+function dra(anchorsData) {
     // get canvas related references
     var bg = document.getElementById("bg");
     var canvas = document.getElementById("canvas");
@@ -23,6 +24,17 @@ function dra() {
     var img = new Image();
     var anchors = [];
     var targets = [];
+
+
+
+    console.log(anchorsData)
+
+    if (typeof anchorsData !== 'undefined') {
+
+     for (var i =0; i <anchorsData.length; i++){
+        createAnchor(anchorsData[i].x,anchorsData[i].y )
+    }
+}
 
     for (var i =0; i <10; i++){
         createTarget(0,0)
@@ -232,5 +244,8 @@ function dra() {
             startX = mx;
             startY = my;
         }
+
     }
+
+
 }
