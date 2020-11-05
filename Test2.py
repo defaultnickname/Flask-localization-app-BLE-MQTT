@@ -1,8 +1,9 @@
+import Target
+import MQTT_READ
+import eelTest
 
-def f():
-    return [x+1 for x in [1,2,3]]
+eelTest.init('templates')
 
-
-print(type([1,2,3]))
-print(type(f()))
-print(type((1,2,3)))
+@eelTest.expose
+def getMsgAndCalculatePos()
+    

@@ -1,0 +1,88 @@
+body {
+    background-color: whitesmoke;
+    min-height: 100%;
+    padding-top: 100px;
+}
+
+.flex-child {
+    flex: 1;
+    border: 2px solid yellow;
+}
+
+.flex-child:first-child {
+    margin-right: 20px;
+}
+
+.flex-container {
+    display: flex;
+}
+
+#nav {
+    width: border-box;
+    display: block;
+
+}
+
+#container {
+
+
+    overflow: auto;
+}
+
+#CanvAndBG {
+
+    position: relative;
+
+    display: block;
+
+
+}
+
+ul.space_list li {
+    margin-bottom: 1em;
+}
+
+.button_delete {
+    background-color: cyan; /* Green background */
+    color: white; /* White text */
+    float: right;
+    margin-left: 15px;
+}
+
+#time {
+    color: #000000;
+    font-family: "Helvetica";
+    padding: 15px 20px 0px 0px;
+    font-size: xx-large;
+}
+
+#bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    display: block;
+}
+
+#canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 0;
+    display: block;
+}
+
+#buttons {
+    position: relative;
+
+    align-items: center;
+    display: block;
+}
+
+#submit {
+    position: relative;
+    display: block;
+    padding-left: 15px;
+
+
+}

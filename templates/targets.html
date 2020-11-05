@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+
+<script type="text/javascript" src="../js/newmqtt.js"></script>
+<script type="text/javascript" src="../js/postToBackend.js"></script>
+<script type="text/javascript" src="../js/paho-mqtt.js"></script>
+
+{% block title %} Adding Users {% endblock %}
+
+{% endblock %}
+
+
+{% block content %}
+<div class="flex-container">
+
+<div class="flex-child magenta" id="submit">
+<form action ="{{ url_for('add_user') }}" method="POST">
+
+  <label for="fname">First name:</label><br>
+  <input type="text" id="fname" name="fname"><br>
+  <label for="lname">Last name:</label><br>
+  <input type="text" id="lname" name="lname"><br>
+   <label for="userid">User ID:</label><br>
+  <input type="text" id="userid" name="userid"><br>
+  <br>
+  <input type="Submit" value ='Submit'/>
+</form>
+</div>
+
+
+<div class="flex-child green" id ="show">
+  <form action = "{{ url_for('delete_user') }}" method="POST">
+  <ul class=space_list>
+    {% for item in values %}
+
+ <li> {{ item.name }}   {{ item.lastname }}
+     <button type="submit" class="button_delete" name="Delete" value={{item._id}}>Delete ID:{{item._id}}</button>
+
+ </li>
+    {% endfor %}
+    </ul>
+  </form>
+
+</div>
+
+</div>
+
+<script>
+
+</script>
+
+
+
+{% endblock %}

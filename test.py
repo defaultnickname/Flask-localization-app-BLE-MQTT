@@ -46,8 +46,7 @@ class MenuBar(tk.Frame):
 
     def go(self,*args,**kwargs):
         #threading.Timer(2.0, self.go).start()
-        icanvas.canvas.delete("target")
-        icanvas.canvas.delete('circ')
+
 
         TheTarget.distanceTab = []
         for i in range(1,8):
@@ -68,8 +67,11 @@ class MenuBar(tk.Frame):
 
         l = idxfor3smallest(TheTarget.distanceTab)
         print(l)
+        l = [3,1,3]
         TheTarget.Update(l)
         #Targ.Update((1,2,3))
+        icanvas.canvas.delete("target")
+        icanvas.canvas.delete('circ')
         icanvas.cr_circle(Target.Beacon.FindWithID(l[0]).x ,Target.Beacon.FindWithID(l[0]).y,TheTarget.distanceTab[l[0]-1])
         icanvas.cr_circle(Target.Beacon.FindWithID(l[1]).x, Target.Beacon.FindWithID(l[1]).y,TheTarget.distanceTab[l[1]-1])
         icanvas.cr_circle(Target.Beacon.FindWithID(l[2]).x, Target.Beacon.FindWithID(l[2]).y,TheTarget.distanceTab[l[2]-1])
@@ -313,7 +315,7 @@ class Canvas(tk.Frame):
 root = Root()
 imenu = MenuBar(root)
 icanvas = Canvas(root)
-con = MQTT_READ.MQTT(broker_address='127.0.0.1', clientname='P1')
+con = MQTT_READ.MQTT(broker_address='localhost',port=1883, clientname='P1')
 
 
 TheTarget = Target.Tar(1)

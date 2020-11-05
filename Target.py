@@ -5,11 +5,11 @@ from scipy.spatial import distance
 import numpy as np
 import sys
 
+
 def great_circle_distance(ax, ay, bx, by, radius):
     a = (ax, ay)
     b = (bx, by)
     d = distance.euclidean(a, b)
-
 
     while d / (2 * radius) > 1:
         d -= 0.1
@@ -61,6 +61,20 @@ class Tar:
         Tar.NoTarget += 1
         Tar.TargetList.append(self)
 
+    @classmethod
+    def FindWithID(cls, TargetId):  # given ID of Anchor, return the anchor
+        for v in Tar.TargetList:
+            if v.targetID == TargetId:
+                return v
+
+    @classmethod
+    def DelWithID(cls, TargetId):  # given ID of Anchor, return the anchor
+        for v in Tar.TargetList:
+
+            if v.targetID == TargetId:
+                Tar.TargetList.remove(v)
+                del v
+
     @staticmethod
     def mse(x, locations, distances):
         mse = 0.0
@@ -71,7 +85,7 @@ class Tar:
             mse += math.pow(distance_calculated - dist, 2.0)
         return mse / 3
 
-    def Update(self,id):
+    def Update(self, id):
         o1 = id[0]
         o2 = id[1]
         o3 = id[2]
@@ -79,7 +93,6 @@ class Tar:
         b1 = Beacon.FindWithID(o1)  # strongest signal lvl
         b2 = Beacon.FindWithID(o2)  # 2 nd
         b3 = Beacon.FindWithID(o3)  # 3 rd
-
 
         locations = [(b1.x, b1.y), (b2.x, b2.y), (b3.x, b3.y)]
 
@@ -97,25 +110,10 @@ class Tar:
             args=(locations, distances),  # Additional parameters for mse
             method='L-BFGS-B',  # The optimisation algorithm
             options={
-                'ftol': 1e-5,  # Tolerance
-                'maxiter': 1e+7  # Maximum iterations
+                'ftol': 1e-9,  # Tolerance
+                'maxiter': 1e+10  # Maximum iterations
             })
         location = result.x
-        #print(f"ID{self.targetID}","P coordinates", location)
+        # print(f"ID{self.targetID}","P coordinates", location)
         self.x = location[0]
         self.y = location[1]
-
-    def checkstate(self, lastseen):
-
-        lastseen = datetime.strptime(lastseen, '%d/%m/%Y %H:%M:%S')
-
-        delta = datetime.now() - lastseen
-        print(delta.total_seconds())
-        if delta.total_seconds() > 28800:
-            return 'expired'
-        if delta.total_seconds() > 180:
-            return 'criticallost'
-        if delta.total_seconds() > 30:
-            return 'lost'
-        else:
-            return 'good'

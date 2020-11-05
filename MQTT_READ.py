@@ -21,20 +21,17 @@ class MQTT:
 
         self.msg = MQTT.ReceivedMessage(msg, topic, msgQoS, retain_flag)
 
-    def __init__(self, broker_address, clientname):
+    def __init__(self, broker_address, clientname, port):
         self.client = mqtt.Client(clientname)  # create new instance
-        self.client.connect(broker_address)
+        self.client.connect(broker_address, port)
         self.brokerAddress = broker_address
         self.client.on_message = self.on_message
         self.msg = None
 
+    def publish(self, topic, msg):
+        self.client.publish(topic, msg, retain=True,qos=1)
 
-    def publish(self,topic,msg):
-
-            self.client.publish(topic, msg,retain=True)
-
-           # time.sleep(1)
-
+    # time.sleep(1)
 
     def read(self, topic):
         self.client.subscribe(topic)
@@ -46,21 +43,12 @@ class MQTT:
 
 if __name__ == "__main__":
 
-    con = MQTT(broker_address='127.0.0.1', clientname='P1')
+    con = MQTT(broker_address='localhost', port=1883, clientname='P1')
 
-    con.publish('test/1/1', 120)  #Anchor 1 publishes distance to Target 1
-    con.publish('test/1/2', 200)  #Anchor 2 publishes distance to Target 1
-    con.publish('test/1/3', 120)  #Anchor 3 publishes distance to Target 1
-    con.publish('test/1/4', 320)  #Anchor 4 publishes distance to Target 1
+    con.publish('test/1/1', 202)  # Anchor 2 publishes distance to Target 1
+    con.publish('test/1/2', 250)  # Anchor 2 publishes distance to Target 1
+    con.publish('test/1/3', 250)  # Anchor 3 publishes distance to Target 1
+    con.publish('test/1/4', 320)  # Anchor 4 publishes distance to Target 1
+    print(con.read('test/1/1'), "test")
 
-    #Topic structure  test / *Target ID* / *Anchor ID*
-
-
-
-
-
-
-
-
-
-
+        # Topic structure  test / *Target ID* / *Anchor ID*
