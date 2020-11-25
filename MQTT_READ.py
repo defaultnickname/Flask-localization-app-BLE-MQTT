@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     con = MQTT(broker_address='localhost', port=1883, clientname='P1')
 
-    con.publish('test/1/1', 202)  # Anchor 2 publishes distance to Target 1
+    con.publish('test/1/1', 220)  # Anchor 2 publishes distance to Target 1
     con.publish('test/1/2', 250)  # Anchor 2 publishes distance to Target 1
     con.publish('test/1/3', 250)  # Anchor 3 publishes distance to Target 1
     con.publish('test/1/4', 320)  # Anchor 4 publishes distance to Target 1

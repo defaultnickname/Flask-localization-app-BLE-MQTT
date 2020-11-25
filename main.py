@@ -28,29 +28,28 @@ def letsgobaby(anchor, targetfromflask):
         _anchor = Target.Beacon(item['x'], item['y'])
         anchorlist.append(_anchor)
 
-    print(targetlist)
-    print(anchorlist)
+
 
     for target in targetlist:
         target.distanceTab = []
         for i, anchor in enumerate(anchorlist):
             topic = "test/" + str(target.targetID) + "/" + str(i + 1)
-            print(topic)
+            print(f'Topic we read from for {target}',topic)
             v = con.read(topic)
 
             target.distanceTab.append(float(v.msg))
 
         l = idxfor3smallest(target.distanceTab)
-        print(l)
-        print(target.distanceTab)
+        print(f'Indexes for trilateration of {target}',l)
+        print(f'Target{target} distance tab',target.distanceTab)
         target.Update(l)
 
         print("Target XY ", target.x, target.y)
         t = 'test/front/' + str(target.targetID)
-        print(t)
+        print('Topic published to : ',t)
         con.publish(t, str(math.floor(target.x)) + " " + str(math.floor(target.y)) + " " + str(target.targetID))
 
-        print("good from python main")
+        print("Python calculated position and send it")
 
 # Topic structure  test / *Target ID* / *Anchor ID*-,-
 # pobierz dane o anchorach

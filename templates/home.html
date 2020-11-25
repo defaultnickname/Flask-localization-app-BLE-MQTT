@@ -9,36 +9,79 @@
 <script type="text/javascript" src="../js/paho-mqtt.js"></script>
 
 
-
-
-
-
 {% block title %} {{embed}} {% endblock %}
 
+{% endblock %}
+
+{% block nav_extend %}
+<li class="nav-item">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+        Dropdown link
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        <form id="form">
+            <input type="file" id="file">
+        </form>
+    </div>
+</li>
+<li class="nav-item">
+
+    <div>
+        Checkbox:
+        <form id='checkboxform'>
+            <input type="checkbox" id="myCheck" value ='0' onclick="chang()">
+        </form>
+        <div id ='checkval'></div>
+
+    </div>
+</li>
 {% endblock %}
 
 
 {% block content %}
 
 
-<div id = "CanvAndBG">
+<div id="CanvAndBG">
     <canvas id="bg"></canvas>
- <canvas id="canvas"></canvas>
+    <canvas id="canvas"></canvas>
 </div>
 
 
-<div id = "buttons">
-    <button onclick="dra.createAnchor(100,100)">Create</button>
-    <button onclick="dra.deleteRectangle()">Del</button>
-    <button onclick="PostToBackend()">Go for it baby</button>
-     <button onclick="connect()">MQTT</button>
-    <button onclick="dra({{ anchors|safe }})">dra</button>
+<div id="buttons">
+    <button onclick="dra.createAnchor(100,100)">Create anchor at 100,100</button>
+    <button onclick="dra.deleteRectangle()">Delete latest rectangle</button>
+
+
+
 </div>
 
 <script>
-    dra({{ anchors|safe }});
+    dra({{anchors | safe}});
     connect();
 
+
+
+    document.getElementById("file").onchange = function () {
+        document.getElementById("form").submit();
+        console.log("submitted");
+    };
+
+
+
+    function chang() {
+
+        if (document.getElementById('myCheck').checked) {
+            PostToBackend();
+
+            document.getElementById('checkval').innerHTML = 'true';
+        } else {
+
+            document.getElementById('checkval').innerHTML = 'false';
+            window.location.reload();
+        }
+
+    }
 </script>
 
 

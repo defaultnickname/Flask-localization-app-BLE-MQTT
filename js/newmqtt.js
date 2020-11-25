@@ -38,7 +38,7 @@ function connect() {
         console.log("onMessageArrived:" + message.payloadString);
         let res = message.payloadString.split(" ");
         console.log(res)
-        dra.updateTarget(parseInt(res[2])-1, parseInt(res[0]),parseInt(res[1]))
+        //dra.updateTarget(parseInt(res[2])-1, parseInt(res[0]),parseInt(res[1]))
     }
 
 }

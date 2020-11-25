@@ -36,7 +36,7 @@ function dra(anchorsData) {
     }
 }
 
-    for (var i =0; i <10; i++){
+    for (var i =0; i <0; i++){
         createTarget(0,0)
     }
 
@@ -45,7 +45,7 @@ function dra(anchorsData) {
     canvas.onmousedown = myDown;
     canvas.onmouseup = myUp;
     canvas.onmousemove = myMove;
-    setbg('https://i.imgur.com/CsMeCOa.png')
+    setbg('https://i.ibb.co/PYtLpcC/biuro.png');
 
 
     function setbg(path) {

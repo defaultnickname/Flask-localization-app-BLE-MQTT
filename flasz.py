@@ -3,12 +3,20 @@ from flask import Flask, render_template, make_response, send_from_directory, js
 from flask_sqlalchemy import SQLAlchemy
 import main
 import Target
-import pickle
+
+UPLOAD_FOLDER = '/static/images',
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.sqlite3'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 db = SQLAlchemy(app)
+
+
+def dummytask() -> None :
+    print("I am dummy")
 
 
 class anchors(db.Model):
@@ -41,28 +49,36 @@ def hello_world():
     _anchor = anchors.query.all()
     message = []
     for a in _anchor:
-        message.append({'x': a.x,'y': a.y})
-
+        message.append({'x': a.x, 'y': a.y})
 
     if request.method == "POST":
+        print('homepage request',request)
+
+
         anchor = request.get_json()
+        print('Anchor before key select', anchor)
+        scheduleTaskFlag = anchor['checkbox']
+        print(scheduleTaskFlag)
+        anchor = anchor['anchor']
+        print('Anchor after key select', anchor)
 
         db.session.query(anchors).delete()
 
         db.session.commit()
 
-        #print(anchor)
+
 
         for item in anchor:
             anch = anchors(item['x'], item['y'])
             db.session.add(anch)
         db.session.commit()
-        #print(anchors.query.all())
+        # print(anchors.query.all())
 
         main.letsgobaby(anchor, Target.Tar.TargetList)
+        return render_template('home.html', anchors=message)
 
-    print("messahe", message)
-    return render_template('home.html', anchors = message)
+    print("Anchor from request X and Y", message)
+    return render_template('home.html', anchors=message)
 
 
 @app.route('/delete', methods=['POST'])
@@ -72,9 +88,9 @@ def delete_user():
 
         usr = users.query.filter_by(_id=deleteId).first()
 
-        print(usr.tarid)
+        print('Datagase User ID to be deleted',usr.tarid)
         Target.Tar.DelWithID(usr.tarid)
-        print(Target.Tar.TargetList)
+        print('Server user tab entry stored in RAM to be removed',Target.Tar.TargetList)
 
         usr = users.query.filter_by(_id=deleteId)
 
@@ -92,7 +108,7 @@ def add_user():
         userid = request.form['userid']
 
         tar = Target.Tar(int(userid))  # Tar
-        print(Target.Tar.TargetList)
+        print('Server RAM table entry to be added',Target.Tar.TargetList)
 
         usr = users(fname, lname, userid, tar)  # dB entry on that user
 
@@ -107,8 +123,6 @@ def adding_user():
     return render_template('targets.html', values=users.query.all())
 
 
-
-
 @app.route('/js/<path:path>')
 def send_js(path):
     return send_from_directory('js', path)
@@ -119,6 +133,6 @@ if __name__ == '__main__':
 
     for user in users.query.all():
         Target.Tar.TargetList.append(user.target)
-        print(Target.Tar.TargetList)
+        print('Server reboot target creation',Target.Tar.TargetList)
 
     app.run(debug=True, host="localhost", port="5001")
