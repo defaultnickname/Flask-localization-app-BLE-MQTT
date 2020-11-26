@@ -2,7 +2,7 @@
 
 function connect() {
 
-    client = new Paho.Client('localhost', 8000, '/mqtt', 'twojdad');
+    let client = new Paho.Client('localhost', 8000, '/mqtt', 'twojdad');
 
 // set callback handlers
     client.onConnectionLost = onConnectionLost;
@@ -14,14 +14,19 @@ function connect() {
 
     });
 
+    function sub(topic){
+        client.subscribe(filter=topic);
+
+    }
 
 // called when the client connects
     function onConnect() {
         // Once a connection has been made, make a subscription and send a message.
         console.log("onConnect");
-        client.subscribe("test/front/1");
-        client.subscribe("test/front/2");
-        client.subscribe("test/front/3");
+        sub("test/front/1");
+        sub("test/front/2");
+
+
 
 
     }
@@ -31,6 +36,8 @@ function connect() {
         if (responseObject.errorCode !== 0) {
             console.log("onConnectionLost:" + responseObject.errorMessage);
         }
+
+
     }
 
 // called when a message arrives
@@ -38,7 +45,7 @@ function connect() {
         console.log("onMessageArrived:" + message.payloadString);
         let res = message.payloadString.split(" ");
         console.log(res)
-        //dra.updateTarget(parseInt(res[2])-1, parseInt(res[0]),parseInt(res[1]))
+        dra.updateTarget(parseInt(res[2])-1, parseInt(res[0]),parseInt(res[1]))
     }
 
 }

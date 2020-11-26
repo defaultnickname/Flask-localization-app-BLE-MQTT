@@ -28,8 +28,10 @@ class MQTT:
         self.client.on_message = self.on_message
         self.msg = None
 
-    def publish(self, topic, msg):
-        self.client.publish(topic, msg, retain=True,qos=1)
+    def publish(self, topic, msg,qos = 0,retain=True):
+        self.client.loop_start()
+        self.client.publish(topic, msg, retain=retain,qos= qos)
+        self.client.loop_stop()
 
     # time.sleep(1)
 
@@ -45,10 +47,9 @@ if __name__ == "__main__":
 
     con = MQTT(broker_address='localhost', port=1883, clientname='P1')
 
-    con.publish('test/1/1', 220)  # Anchor 2 publishes distance to Target 1
-    con.publish('test/1/2', 250)  # Anchor 2 publishes distance to Target 1
-    con.publish('test/1/3', 250)  # Anchor 3 publishes distance to Target 1
-    con.publish('test/1/4', 320)  # Anchor 4 publishes distance to Target 1
-    print(con.read('test/1/1'), "test")
+
+
+    con.publish('test/1/2', '270')  # Anchor 2 publishes distance to Target 1
+
 
         # Topic structure  test / *Target ID* / *Anchor ID*

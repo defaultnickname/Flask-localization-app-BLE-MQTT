@@ -111,10 +111,10 @@ class Tar:
             args=(locations, distances),  # Additional parameters for mse
             method='L-BFGS-B',  # The optimisation algorithm
             options={
-                'ftol': 1e-9,  # Tolerance
+                'ftol': 1e-3,  # Tolerance
                 'maxiter': 1e+10  # Maximum iterations
             })
         location = result.x
         # print(f"ID{self.targetID}","P coordinates", location)
-        self.x = location[0]
-        self.y = location[1]
+        self.x = abs(math.floor(location[0]))
+        self.y = abs(math.floor(location[1]))

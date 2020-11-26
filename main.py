@@ -47,7 +47,7 @@ def letsgobaby(anchor, targetfromflask):
         print("Target XY ", target.x, target.y)
         t = 'test/front/' + str(target.targetID)
         print('Topic published to : ',t)
-        con.publish(t, str(math.floor(target.x)) + " " + str(math.floor(target.y)) + " " + str(target.targetID))
+        con.publish(t, str(math.floor(target.x)) + " " + str(math.floor(target.y)) + " " + str(target.targetID), retain = False )
 
         print("Python calculated position and send it")
 

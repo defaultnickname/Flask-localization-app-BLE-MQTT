@@ -57,9 +57,9 @@
 </div>
 
 <script>
-    dra({{anchors | safe}});
+    console.log({{targets|safe}});
+    dra({{anchors | safe}}, {{targets | safe}});
     connect();
-
 
 
     document.getElementById("file").onchange = function () {
@@ -73,12 +73,16 @@
 
         if (document.getElementById('myCheck').checked) {
             PostToBackend();
+            dra.allTargetVisible();
+
 
             document.getElementById('checkval').innerHTML = 'true';
         } else {
 
             document.getElementById('checkval').innerHTML = 'false';
+            dra.allTargetInvisible();
             window.location.reload();
+
         }
 
     }
